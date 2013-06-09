@@ -1,5 +1,5 @@
 Dependencies
 ------------
 * sinatra
-* a redis server
+* redis
 * the redis gem (https://github.com/redis/redis-rb)
