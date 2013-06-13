@@ -1,3 +1,7 @@
+OMNIVORE
+=============
+Feed caching server with Redis and Sinatra
+
 Dependencies
 ------------
 * ruby >= 1.9
