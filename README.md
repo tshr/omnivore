@@ -1,5 +1,7 @@
 Dependencies
 ------------
+* ruby >= 1.9
 * sinatra
 * redis
-* the redis gem (https://github.com/redis/redis-rb)
+* redis gem (https://github.com/redis/redis-rb)
+* rest-client (https://github.com/rest-client/rest-client)
