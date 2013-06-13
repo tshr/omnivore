@@ -1,6 +1,7 @@
 TODO
 ----
 * test suite
+* error handling
 * count getter
 * feed expiration
 * feed domain level counts
