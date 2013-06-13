@@ -14,3 +14,6 @@ TODO
 * master / slave redis server deployment
 * configurable db backup
 * d3 visualization of feed traffic
+* server fail over protection
+* server capacity manager
+* add with_feed flag to feed_data requests
