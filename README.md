@@ -1,6 +1,6 @@
-OMNIVORE
+Omnivore
 =============
-Feed caching server with Redis and Sinatra
+Feed caching with Redis and Sinatra
 
 Dependencies
 ------------
