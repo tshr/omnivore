@@ -1,9 +1,5 @@
-TODO
-----
 * test suite
 * error handling
-* metadata getter DONE
-* multiple param requests for feed data and associated meta data
 * feed expiration
 * feed domain level counts
 * feed reformatting
@@ -16,4 +12,7 @@ TODO
 * d3 visualization of feed traffic
 * server fail over protection
 * server capacity manager
-* add with_feed flag to feed_data requests
+* duplicate url checking
+* Go through Google Reader API and see if there's features that sound like they'd be good to add
+* Database replication
+* admin console

@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Omnivore | Index</title>
+    <title>Omnivore | Hello!</title>
   </head>
   <body>
-    <p>Hi! I'm omnivore, your friendly feed cache server.</p>
+    <h2>Hi. I'm omnivore, your friendly feed cache server.</h2>
     <p>To request a feed hit!</p>
-    <pre>/feed?url={feed_url}</pre>
+    <pre>/feed?url={feed_url} #returns xml</pre>
+    <hr />
     <p>To get the metadata for a feed strike!</p>
-    <pre>/feed_data?url={feed_url}</pre>
+    <pre>/feed_data?url={feed_url} #returns json</pre>
+    <hr />
+    <p>If you want the feed along with its metadata wrapped up in one tasty object add "include_feed=true" to the feed data request's GET parameters. Kabam!</p>
+    <pre>/feed_data?url={feed_url}&include_feed=true</pre>
+    <hr />
+    <p>Fork me on <a href="https://github.com/tshr/omnivore">Github</a></p>
   </body>
 </html>

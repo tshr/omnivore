@@ -29,12 +29,13 @@ get '/feed_data' do
   content_type :json
 
   request_url = params[:url]
+  include_feed = (params[:include_feed] == "true")
   feed_hash = redis.hgetall request_url
 
   if feed_hash.empty?
     {error: "Feed not found."}.to_json
   else
-    feed_hash.delete("feed")
+    feed_hash.delete("feed") unless include_feed
     response_hash = { request_url => feed_hash }
     response_hash.to_json
   end
