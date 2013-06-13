@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'redis'
 require 'rest-client'
+require 'json'
 
 redis = Redis.new
 
@@ -21,5 +22,20 @@ get '/feed' do
   else
     redis.hincrby(request_url, "count", 1)
     feed_hash["feed"]
+  end
+end
+
+get '/feed_data' do
+  content_type :json
+
+  request_url = params[:url]
+  feed_hash = redis.hgetall request_url
+
+  if feed_hash.empty?
+    {error: "Feed not found."}.to_json
+  else
+    feed_hash.delete("feed")
+    response_hash = { request_url => feed_hash }
+    response_hash.to_json
   end
 end
