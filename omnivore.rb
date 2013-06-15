@@ -56,7 +56,7 @@ get '/feed_data' do
   if feed_hash.empty?
     {error: "Feed not found."}.to_json
   else
-    feed_hash.delete("feed") unless include_feed #does not cause count to increment
+    feed_hash.delete("feed") unless include_feed #returning feed here does not cause count to increment
     response_hash = { request_url => feed_hash }
     response_hash.to_json
   end
