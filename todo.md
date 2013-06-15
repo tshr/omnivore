@@ -15,4 +15,6 @@
 * duplicate url checking
 * Go through Google Reader API and see if there's features that sound like they'd be good to add
 * Database replication
+* accurate counts / other meta data across multiple database set up
 * admin console
+* threading or multiple processes

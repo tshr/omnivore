@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby -I ../lib -I lib
+
 require 'sinatra'
 require 'redis'
 require 'rest-client'
