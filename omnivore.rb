@@ -21,7 +21,7 @@ module Cached
 end
 
 get '/' do
-  erb :index
+  File.read(File.join('public', 'index.html'))
 end
 
 get '/feed' do
