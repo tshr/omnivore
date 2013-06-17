@@ -8,6 +8,7 @@ describe "Omnivore" do
       
       before(:each) do
         test_hash.extend(Cached)
+        Timecop.freeze(Time.now)
       end
       
       it "should return false if self does not contain an 'updated' key value" do
@@ -15,24 +16,18 @@ describe "Omnivore" do
       end
 
       it "should return true if self's updated time plus TIME_TO_LIVE is before the current time" do
-        Timecop.freeze(Time.now) do
-          test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE - 1
-          test_hash.expired?.should be_true
-        end
+        test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE - 1
+        test_hash.expired?.should be_true
       end
 
       it "should return false if self's updated time plus TIME_TO_LIVE is the same as the current time" do
-        Timecop.freeze(Time.now) do
-          test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE
-          test_hash.expired?.should be_false
-        end
+        test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE
+        test_hash.expired?.should be_false
       end
 
       it "should return false if self's updated time plus TIME_TO_LIVE is after the current time" do
-        Timecop.freeze(Time.now) do
-          test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE + 1
-          test_hash.expired?.should be_false
-        end
+        test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE + 1
+        test_hash.expired?.should be_false
       end
     end
   end
