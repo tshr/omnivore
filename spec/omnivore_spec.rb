@@ -37,13 +37,9 @@ describe "Omnivore" do
     end
   end
 
-  it "should respond to GET" do
-    get '/'
-    last_response.should be_ok
-  end
-
   it "should return the welcome page at root" do
     get '/'
+    last_response.should be_ok
     last_response.body.should include "Hi. I'm Omnivore, your friendly feed cache server."
   end
 end
