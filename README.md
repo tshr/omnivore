@@ -12,6 +12,7 @@ Feed caching with Redis and Sinatra
 * rest-client (https://github.com/rest-client/rest-client)
 * rspec
 * rack-test
+* timecop
 
 ## License
 
