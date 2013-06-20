@@ -67,14 +67,20 @@ describe "Omnivore" do
           get '/feed?url=' + valid_feed_url
         end
 
-        it "responds OK" do
-          get '/feed?url=' + valid_feed_url
-          last_response.should be_ok
-        end
+        context "returns the feed and a valid response" do
+          before(:each) do
+            Redis.any_instance.stub(:hmset)
+          end
 
-        it "returns the response feed" do
-          get '/feed?url=' + valid_feed_url
-          last_response.body.should == "successful response"
+          it "responds OK" do
+            get '/feed?url=' + valid_feed_url
+            last_response.should be_ok
+          end
+
+          it "returns the response feed" do
+            get '/feed?url=' + valid_feed_url
+            last_response.body.should == "successful response"
+          end
         end
       end
     end
