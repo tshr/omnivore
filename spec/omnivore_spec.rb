@@ -50,26 +50,31 @@ describe "Omnivore" do
     context "requesting a valid feed URL" do
 
       let(:valid_feed_url) {'http://www.example.com/feed.rss'}
-      
+
       context "and the feed isn't cached" do
-        xit "stores the feed response in the database" do
-          # redis = double('redis')
-          # get '/feed?url=' + valid_feed_url
-          # redis.should_receive(:hgetall).with(valid_feed_url).and_return({})
+        before(:each) do
+          Timecop.freeze(Time.now)
+          Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return({})
+          RestClient.stub(:get).with(valid_feed_url).and_return("successful response")
         end
 
-        xit "sets the feed hash's count to 1" do
+        it "stores the feed url and response in the database, sets the feed hash's
+           count to 1, and sets updated to the current time" do
+          Redis.any_instance.should_receive(:hmset).with(valid_feed_url, "feed",
+                                                         "successful response",
+                                                         "count", 1, "updated",
+                                                         Time.now.to_i)
+          get '/feed?url=' + valid_feed_url
         end
 
-        xit "sets updated to the current time" do
-        end
-
-        xit "responds OK" do
+        it "responds OK" do
+          get '/feed?url=' + valid_feed_url
           last_response.should be_ok
         end
-        
-        xit "returns the requested feed" do
 
+        it "returns the response feed" do
+          get '/feed?url=' + valid_feed_url
+          last_response.body.should == "successful response"
         end
       end
     end

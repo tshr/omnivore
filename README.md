@@ -13,6 +13,7 @@ Feed caching with Redis and Sinatra
 * rspec
 * rack-test
 * timecop
+* debugger
 
 ## License
 
