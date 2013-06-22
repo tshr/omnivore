@@ -67,9 +67,36 @@ describe "Omnivore" do
           get '/feed?url=' + valid_feed_url
         end
 
-        context "returns the feed and a valid response" do
+        context "returns the feed and an OKresponse" do
           before(:each) do
             Redis.any_instance.stub(:hmset)
+            get '/feed?url=' + valid_feed_url
+          end
+
+          it "responds OK" do
+            last_response.should be_ok
+          end
+
+          it "returns the response feed" do
+            last_response.body.should == "successful response"
+          end
+        end
+      end
+
+      context "and the feed is cached" do
+        context "and it isn't expired" do
+          before(:each) do
+            Timecop.freeze(Time.now)
+            Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return(
+              { "feed" => "cached feed",
+               "count" => "1",
+               "updated" => (Time.now.to_i - TIME_TO_LIVE + 1).to_s
+              }
+            )
+          end
+          it "increments the feed's count by 1" do
+            Redis.any_instance.should_receive(:hincrby).with(valid_feed_url, "count", 1)
+            get '/feed?url=' + valid_feed_url
           end
 
           it "responds OK" do
@@ -77,9 +104,9 @@ describe "Omnivore" do
             last_response.should be_ok
           end
 
-          it "returns the response feed" do
+          it "returns the cached feed" do
             get '/feed?url=' + valid_feed_url
-            last_response.body.should == "successful response"
+            last_response.body.should == "cached feed"
           end
         end
       end
