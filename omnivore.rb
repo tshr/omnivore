@@ -35,7 +35,7 @@ get '/feed' do
     response
   else
     feed_hash.extend(Cached)
-    if feed_hash.expired? 
+    if feed_hash.expired?
       response = RestClient.get request_url
       redis.hmset(request_url, "feed", response, "count", feed_hash["count"].to_i + 1, "updated", Time.now.to_i)
       response

@@ -84,16 +84,50 @@ describe "Omnivore" do
       end
 
       context "and the feed is cached" do
-        context "and it isn't expired" do
+        before(:each) do
+          Timecop.freeze(Time.now)
+        end
+        context "and it is expired" do
+          let(:returned_feed_count) {"1"}
           before(:each) do
-            Timecop.freeze(Time.now)
             Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return(
               { "feed" => "cached feed",
-               "count" => "1",
-               "updated" => (Time.now.to_i - TIME_TO_LIVE + 1).to_s
+                "count" => returned_feed_count,
+                "updated" => (Time.now.to_i - TIME_TO_LIVE - 1).to_s
+              }
+            )
+            RestClient.stub(:get).with(valid_feed_url).and_return("successful response")
+          end
+
+          it "resets the feed hash with the refreshed response, increments the
+              count by one and sets 'updated' to the current time" do
+            Redis.any_instance.should_receive(:hmset).with(valid_feed_url, "feed",
+                                                           "successful response",
+                                                           "count", returned_feed_count.to_i + 1, "updated",
+                                                           Time.now.to_i)
+            get '/feed?url=' + valid_feed_url
+          end
+
+          it "responds OK" do
+            get '/feed?url=' + valid_feed_url
+            last_response.should be_ok
+          end
+
+          it "returns the response feed" do
+            get '/feed?url=' + valid_feed_url
+            last_response.body.should == "successful response"
+          end
+        end
+        context "and it isn't expired" do
+          before(:each) do
+            Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return(
+              { "feed" => "cached feed",
+                "count" => "1",
+                "updated" => (Time.now.to_i - TIME_TO_LIVE + 1).to_s
               }
             )
           end
+
           it "increments the feed's count by 1" do
             Redis.any_instance.should_receive(:hincrby).with(valid_feed_url, "count", 1)
             get '/feed?url=' + valid_feed_url
