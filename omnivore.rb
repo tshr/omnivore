@@ -56,7 +56,7 @@ get '/feed_data' do
   if feed_hash.empty?
     {error: "Feed not found."}.to_json
   else
-    # If feed is included in data request count is incremented, otherwise it isn't
+    # If feed is included in data request, count is incremented, otherwise it isn't
     include_feed ? redis.hincrby(request_url, "count", 1) : feed_hash.delete("feed")
     response_hash = { request_url => feed_hash }
     response_hash.to_json
