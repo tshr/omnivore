@@ -80,6 +80,10 @@ describe "Omnivore" do
           it "returns the response feed" do
             last_response.body.should == "successful response"
           end
+
+          it "returns a content type of xml" do
+            last_response.header["Content-Type"].should == "text/xml;charset=utf-8"
+          end
         end
       end
 
@@ -88,7 +92,9 @@ describe "Omnivore" do
           Timecop.freeze(Time.now)
         end
         context "and it is expired" do
+
           let(:returned_feed_count) {"1"}
+
           before(:each) do
             Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return(
               { "feed" => "cached feed",
@@ -117,6 +123,11 @@ describe "Omnivore" do
             get '/feed?url=' + valid_feed_url
             last_response.body.should == "successful response"
           end
+
+          it "returns a content type of xml" do
+            get '/feed?url=' + valid_feed_url
+            last_response.header["Content-Type"].should == "text/xml;charset=utf-8"
+          end
         end
         context "and it isn't expired" do
           before(:each) do
@@ -141,6 +152,11 @@ describe "Omnivore" do
           it "returns the cached feed" do
             get '/feed?url=' + valid_feed_url
             last_response.body.should == "cached feed"
+          end
+
+          it "returns a content type of xml" do
+            get '/feed?url=' + valid_feed_url
+            last_response.header["Content-Type"].should == "text/xml;charset=utf-8"
           end
         end
       end
