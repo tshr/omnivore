@@ -58,8 +58,8 @@ describe "Omnivore" do
           RestClient.stub(:get).with(valid_feed_url).and_return("successful response")
         end
 
-        it "stores the feed url and response in the database, with the count set to
-            1, and updated set to the current time" do
+        it "stores the feed url and response in the database, with the 'count' set to
+            1, and 'updated' set to the current time" do
           Redis.any_instance.should_receive(:hmset).with(valid_feed_url, "feed",
                                                          "successful response",
                                                          "count", 1, "updated",
