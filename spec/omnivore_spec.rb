@@ -103,6 +103,10 @@ describe "Omnivore" do
               }
             )
             RestClient.stub(:get).with(valid_feed_url).and_return("successful response")
+            Redis.any_instance.stub(:hmset).with(valid_feed_url, "feed",
+                                                    "successful response",
+                                                    "count", returned_feed_count.to_i + 1, "updated",
+                                                    Time.now.to_i)
           end
 
           it "resets the feed hash with the refreshed response, increments the
@@ -145,16 +149,19 @@ describe "Omnivore" do
           end
 
           it "responds OK" do
+            Redis.any_instance.stub(:hincrby).with(valid_feed_url, "count", 1)
             get '/feed?url=' + valid_feed_url
             last_response.should be_ok
           end
 
           it "returns the cached feed" do
+            Redis.any_instance.stub(:hincrby).with(valid_feed_url, "count", 1)
             get '/feed?url=' + valid_feed_url
             last_response.body.should == "cached feed"
           end
 
           it "returns a content type of xml" do
+            Redis.any_instance.stub(:hincrby).with(valid_feed_url, "count", 1)
             get '/feed?url=' + valid_feed_url
             last_response.header["Content-Type"].should include "text/xml"
           end
@@ -183,15 +190,18 @@ describe "Omnivore" do
     end
 
     context "The feed is stored" do
+
+      let (:example_feed_hash) {
+        {
+          "feed" => "stored feed",
+          "count" => "5",
+          "updated" => Time.now.to_i.to_s
+        }
+      }
+
       before(:each) do
         Timecop.freeze(Time.now)
-        Redis.any_instance.stub(:hgetall).with(feed_url).and_return(
-          {
-            "feed" => "stored feed",
-            "count" => "5",
-            "updated" => Time.now.to_i.to_s
-          }
-        )
+        Redis.any_instance.stub(:hgetall).with(feed_url).and_return example_feed_hash
       end
 
       it "returns a content type of json" do
@@ -200,15 +210,27 @@ describe "Omnivore" do
       end
 
       context "The include feed param is set to 'true'" do
+        before(:each) do
+          Redis.any_instance.stub(:hincrby).with(feed_url, "count", 1)
+        end
 
-        xit "increments the feed's count by 1" do
-        #   get "/feed_data?url=#{feed_url}&include_feed=true"
-        #   Redis.any_instance.should_receive(:hincrby).with(feed_url, "count", 1)
+        it "increments the feed's count by 1" do
+          Redis.any_instance.should_receive(:hincrby).with(feed_url, "count", 1)
+          get "/feed_data?url=#{feed_url}&include_feed=true"
+        end
+
+        it "returns a content type of json" do
+          get "/feed_data?url=#{feed_url}&include_feed=true"
+          last_response.header["Content-Type"].should include "application/json"
+        end
+
+        it "returns the feed data" do
+          get "/feed_data?url=#{feed_url}&include_feed=true"
+          last_response.body.should == { feed_url => example_feed_hash }.to_json
         end
       end
 
       context "The include feed param is not set" do
-
       end
 
       context "The include feed param is set to a value other than true" do
