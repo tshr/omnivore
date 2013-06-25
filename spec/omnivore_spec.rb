@@ -1,14 +1,20 @@
 require 'spec_helper'
 
 describe "Omnivore" do
+  before(:each) do
+    Timecop.freeze(Time.now)
+  end
 
-  module Cached
+  let(:time_to_live_ago) {Time.now.to_i - TIME_TO_LIVE}
+  let(:older_than_time_to_live_ago) {time_to_live_ago - 1}
+  let(:younger_than_time_to_live_ago) {time_to_live_ago + 1}
+
+  describe "Cached module" do
     describe "the expired? instance method" do
       let(:test_hash) { {} }
       
       before(:each) do
         test_hash.extend(Cached)
-        Timecop.freeze(Time.now)
       end
       
       it "returns false if self does not contain an 'updated' key value" do
@@ -16,17 +22,17 @@ describe "Omnivore" do
       end
 
       it "returns true if self's updated time plus TIME_TO_LIVE is before the current time" do
-        test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE - 1
+        test_hash["updated"] = older_than_time_to_live_ago
         test_hash.expired?.should be_true
       end
 
       it "returns false if self's updated time plus TIME_TO_LIVE is the same as the current time" do
-        test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE
+        test_hash["updated"] = time_to_live_ago
         test_hash.expired?.should be_false
       end
 
       it "returns false if self's updated time plus TIME_TO_LIVE is after the current time" do
-        test_hash["updated"] = Time.now.to_i - TIME_TO_LIVE + 1
+        test_hash["updated"] = younger_than_time_to_live_ago
         test_hash.expired?.should be_false
       end
     end
@@ -53,7 +59,6 @@ describe "Omnivore" do
 
       context "and the feed isn't cached" do
         before(:each) do
-          Timecop.freeze(Time.now)
           Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return({})
           RestClient.stub(:get).with(valid_feed_url).and_return("successful response")
         end
@@ -88,9 +93,7 @@ describe "Omnivore" do
       end
 
       context "and the feed is cached" do
-        before(:each) do
-          Timecop.freeze(Time.now)
-        end
+
         context "and it is expired" do
 
           let(:returned_feed_count) {"1"}
@@ -99,7 +102,7 @@ describe "Omnivore" do
             Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return(
               { "feed" => "cached feed",
                 "count" => returned_feed_count,
-                "updated" => (Time.now.to_i - TIME_TO_LIVE - 1).to_s
+                "updated" => older_than_time_to_live_ago.to_s
               }
             )
             RestClient.stub(:get).with(valid_feed_url).and_return("successful response")
@@ -138,7 +141,7 @@ describe "Omnivore" do
             Redis.any_instance.stub(:hgetall).with(valid_feed_url).and_return(
               { "feed" => "cached feed",
                 "count" => "1",
-                "updated" => (Time.now.to_i - TIME_TO_LIVE + 1).to_s
+                "updated" => younger_than_time_to_live_ago.to_s
               }
             )
           end
@@ -200,7 +203,6 @@ describe "Omnivore" do
       }
 
       before(:each) do
-        Timecop.freeze(Time.now)
         Redis.any_instance.stub(:hgetall).with(feed_url).and_return example_feed_hash
       end
 
