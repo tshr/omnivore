@@ -155,7 +155,7 @@ describe "Omnivore" do
 
       let (:example_feed_hash) {
         {
-          "feed" => "stored feed",
+          "feed" => "Stored feed",
           "count" => "5",
           "updated" => Time.now.to_i.to_s
         }
@@ -175,7 +175,7 @@ describe "Omnivore" do
           get "/feed_data?url=#{feed_url}&include_feed=true"
         end
 
-        it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true', "stored feed", "json"
+        it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true', "Stored feed", "json"
 
       end
 
