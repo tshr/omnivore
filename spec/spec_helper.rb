@@ -1,9 +1,7 @@
 require File.join(File.dirname(__FILE__), '..', 'omnivore.rb')
-require 'sinatra'
 require 'rack/test'
 require 'timecop'
 
-# setup test environment
 set :environment, :test
 set :raise_errors, true
 set :logging, false
