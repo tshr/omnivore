@@ -175,15 +175,8 @@ describe "Omnivore" do
           get "/feed_data?url=#{feed_url}&include_feed=true"
         end
 
-        it "returns a content type of json" do
-          get "/feed_data?url=#{feed_url}&include_feed=true"
-          last_response.header["Content-Type"].should include "application/json"
-        end
+        it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true', "stored feed", "json"
 
-        it "returns the feed data" do
-          get "/feed_data?url=#{feed_url}&include_feed=true"
-          last_response.body.should == { feed_url => example_feed_hash }.to_json
-        end
       end
 
       context "The include feed param is not set" do
