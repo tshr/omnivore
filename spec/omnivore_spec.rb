@@ -38,41 +38,31 @@ describe "Omnivore" do
     end
   end
 
-  describe "GET /" do
+  shared_examples_for "a successful request" do |request, content, content_type|
+
     before(:each) do
-      get '/'
+      get request
     end
 
     it "responds OK" do
       last_response.should be_ok
     end
 
-    it "returns the welcome page" do  
-      last_response.body.should include "Hi. I'm Omnivore, your friendly feed cache server."
+    it "returns the response feed" do
+      last_response.body.should include content
     end
+
+    it "returns a content type of xml" do
+      last_response.header["Content-Type"].should include content_type
+    end
+  end
+
+  describe "GET /" do
+    it_should_behave_like "a successful request", '/', "Hi. I'm Omnivore, your friendly feed cache server.", "html"
   end
 
   describe "GET /feed" do
     context "requesting a valid feed URL" do
-
-      shared_examples_for "a successful request" do |content_type|
-
-        before(:each) do
-          get '/feed?url=' + feed_url
-        end
-
-        it "responds OK" do
-          last_response.should be_ok
-        end
-
-        it "returns the response feed" do
-          last_response.body.should == "successful response"
-        end
-
-        it "returns a content type of xml" do
-          last_response.header["Content-Type"].should include "text/#{content_type}"
-        end
-      end
 
       let(:feed_url) {'http://www.example.com/feed.rss'}
 
@@ -93,7 +83,7 @@ describe "Omnivore" do
           get '/feed?url=' + feed_url
         end
 
-        it_should_behave_like "a successful request", "xml"
+        it_should_behave_like "a successful request", '/feed?url=http://www.example.com/feed.rss', "successful response", "xml"
       end
 
       context "and the feed is cached" do
@@ -123,8 +113,9 @@ describe "Omnivore" do
             get '/feed?url=' + feed_url
           end
 
-          it_should_behave_like "a successful request", "xml"
+          it_should_behave_like "a successful request", '/feed?url=http://www.example.com/feed.rss', "successful response", "xml"
         end
+
         context "and it isn't expired" do
           before(:each) do
             Redis.any_instance.stub(:hgetall).with(feed_url).and_return(
@@ -133,6 +124,8 @@ describe "Omnivore" do
                 "updated" => younger_than_time_to_live_ago.to_s
               }
             )
+
+            Redis.any_instance.stub(:hincrby).with(feed_url, "count", 1)
           end
 
           it "increments the feed's count by 1" do
@@ -140,23 +133,7 @@ describe "Omnivore" do
             get '/feed?url=' + feed_url
           end
 
-          it "responds OK" do
-            Redis.any_instance.stub(:hincrby).with(feed_url, "count", 1)
-            get '/feed?url=' + feed_url
-            last_response.should be_ok
-          end
-
-          it "returns the cached feed" do
-            Redis.any_instance.stub(:hincrby).with(feed_url, "count", 1)
-            get '/feed?url=' + feed_url
-            last_response.body.should == "cached feed"
-          end
-
-          it "returns a content type of xml" do
-            Redis.any_instance.stub(:hincrby).with(feed_url, "count", 1)
-            get '/feed?url=' + feed_url
-            last_response.header["Content-Type"].should include "text/xml"
-          end
+          it_should_behave_like "a successful request", '/feed?url=http://www.example.com/feed.rss', "cached feed", "xml"
         end
       end
     end
@@ -169,16 +146,9 @@ describe "Omnivore" do
 
       before(:each) do
         Redis.any_instance.stub(:hgetall).with(feed_url).and_return({})
-        get '/feed_data?url=' + feed_url
       end
 
-      it "returns a content type of json" do
-        last_response.header["Content-Type"].should include "application/json"
-      end
-
-      it "returns a 'Feed not found.' error message" do
-        last_response.body.should include "Feed not found."
-      end
+      it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss', "Feed not found.", "json"
     end
 
     context "The feed is stored" do
@@ -193,11 +163,6 @@ describe "Omnivore" do
 
       before(:each) do
         Redis.any_instance.stub(:hgetall).with(feed_url).and_return example_feed_hash
-      end
-
-      it "returns a content type of json" do
-        get '/feed_data?url=' + feed_url
-        last_response.header["Content-Type"].should include "application/json"
       end
 
       context "The include feed param is set to 'true'" do
