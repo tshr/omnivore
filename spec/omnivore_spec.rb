@@ -177,13 +177,34 @@ describe "Omnivore" do
 
         it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true', "Stored feed", "json"
 
+        it "returns as the response a JSON object with the feed url as the key
+        and the feed data values in the response, including the feed itself" do
+          get "/feed_data?url=#{feed_url}&include_feed=true"
+          last_response.body.should == { feed_url => example_feed_hash }.to_json
+        end
+
       end
 
       context "The include feed param is not set" do
+        it "returns as the response a JSON object with the feed url as the key
+        and the feed data values in the response, excluding the feed itself" do
+          get "/feed_data?url=#{feed_url}"
+
+          last_response.should be_ok
+          last_response.header["Content-Type"].should include "json"
+          last_response.body.should == { feed_url => example_feed_hash.tap{ |h| h.delete(:feed) } }.to_json
+        end
       end
 
       context "The include feed param is set to a value other than true" do
+        it "returns as the response a JSON object with the feed url as the key
+        and the feed data values in the response, excluding the feed itself" do
+          get "/feed_data?url=#{feed_url}&include_feed=false"
 
+          last_response.should be_ok
+          last_response.header["Content-Type"].should include "json"
+          last_response.body.should == { feed_url => example_feed_hash.tap{ |h| h.delete(:feed) } }.to_json
+        end
       end
     end
   end
