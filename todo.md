@@ -1,6 +1,5 @@
 * test suite
-* error handling
-* feed expiration
+* error handling / atomizing all operations
 * feed domain level counts
 * feed reformatting
 * performance testing
