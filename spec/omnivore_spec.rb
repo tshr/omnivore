@@ -12,11 +12,11 @@ describe "Omnivore" do
   describe "Cached module" do
     describe "the expired? instance method" do
       let(:test_hash) { {} }
-      
+
       before(:each) do
         test_hash.extend(Cached)
       end
-      
+
       it "returns false if self does not contain an 'updated' key value" do
         test_hash.expired?.should be_false
       end
