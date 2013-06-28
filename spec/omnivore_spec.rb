@@ -5,40 +5,7 @@ describe "Omnivore" do
     Timecop.freeze(Time.now)
   end
 
-  let(:time_to_live_ago) {Time.now.to_i - TIME_TO_LIVE}
-  let(:older_than_time_to_live_ago) {time_to_live_ago - 1}
-  let(:younger_than_time_to_live_ago) {time_to_live_ago + 1}
-
-  describe "Cached module" do
-    describe "the expired? instance method" do
-      let(:test_hash) { {} }
-
-      before(:each) do
-        test_hash.extend(Cached)
-      end
-
-      it "returns false if self does not contain an 'updated' key value" do
-        test_hash.expired?.should be_false
-      end
-
-      it "returns true if self's updated time plus TIME_TO_LIVE is before the current time" do
-        test_hash["updated"] = older_than_time_to_live_ago
-        test_hash.expired?.should be_true
-      end
-
-      it "returns false if self's updated time plus TIME_TO_LIVE is the same as the current time" do
-        test_hash["updated"] = time_to_live_ago
-        test_hash.expired?.should be_false
-      end
-
-      it "returns false if self's updated time plus TIME_TO_LIVE is after the current time" do
-        test_hash["updated"] = younger_than_time_to_live_ago
-        test_hash.expired?.should be_false
-      end
-    end
-  end
-
-  shared_examples_for "a successful request" do |request, content, content_type|
+  shared_examples_for "a successful request" do |request, content, content_type, include = false|
 
     before(:each) do
       get request
@@ -49,7 +16,7 @@ describe "Omnivore" do
     end
 
     it "returns the response feed" do
-      last_response.body.should include content
+      include ? (last_response.body.should include content) : (last_response.body.should == content)
     end
 
     it "returns a content type of xml" do
@@ -58,7 +25,7 @@ describe "Omnivore" do
   end
 
   describe "GET /" do
-    it_should_behave_like "a successful request", '/', "Hi. I'm Omnivore, your friendly feed cache server.", "html"
+    it_should_behave_like "a successful request", '/', "Hi. I'm Omnivore, your friendly feed cache server.", "html", true
   end
 
   describe "GET /feed" do
@@ -87,6 +54,10 @@ describe "Omnivore" do
       end
 
       context "and the feed is cached" do
+
+        let(:time_to_live_ago) {Time.now.to_i - TIME_TO_LIVE}
+        let(:older_than_time_to_live_ago) {time_to_live_ago - 1}
+        let(:younger_than_time_to_live_ago) {time_to_live_ago + 1}
 
         context "and it is expired" do
 
@@ -148,7 +119,7 @@ describe "Omnivore" do
         Redis.any_instance.stub(:hgetall).with(feed_url).and_return({})
       end
 
-      it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss', "Feed not found.", "json"
+      it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss', "Feed not found.", "json", true
     end
 
     context "The feed is stored" do
@@ -175,36 +146,21 @@ describe "Omnivore" do
           get "/feed_data?url=#{feed_url}&include_feed=true"
         end
 
-        it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true', "Stored feed", "json"
-
-        it "returns as the response a JSON object with the feed url as the key
-        and the feed data values in the response, including the feed itself" do
-          get "/feed_data?url=#{feed_url}&include_feed=true"
-          last_response.body.should == { feed_url => example_feed_hash }.to_json
-        end
+        it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true',
+        {"http://www.example.com/feed.rss" => {"feed" => "Stored feed","count" => "5","updated" => Time.now.to_i.to_s}}.to_json, "json"
 
       end
 
       context "The include feed param is not set" do
-        it "returns as the response a JSON object with the feed url as the key
-        and the feed data values in the response, excluding the feed itself" do
-          get "/feed_data?url=#{feed_url}"
+        it_should_behave_like "a successful request", "/feed_data?url=http://www.example.com/feed.rss",
+        { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s} }.to_json, "json"
 
-          last_response.should be_ok
-          last_response.header["Content-Type"].should include "json"
-          last_response.body.should == { feed_url => example_feed_hash.tap{ |h| h.delete(:feed) } }.to_json
-        end
       end
 
       context "The include feed param is set to a value other than true" do
-        it "returns as the response a JSON object with the feed url as the key
-        and the feed data values in the response, excluding the feed itself" do
-          get "/feed_data?url=#{feed_url}&include_feed=false"
+        it_should_behave_like "a successful request", "/feed_data?url=http://www.example.com/feed.rss&include_feed=false",
+        { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s} }.to_json, "json"
 
-          last_response.should be_ok
-          last_response.header["Content-Type"].should include "json"
-          last_response.body.should == { feed_url => example_feed_hash.tap{ |h| h.delete(:feed) } }.to_json
-        end
       end
     end
   end
