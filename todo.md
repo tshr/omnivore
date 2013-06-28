@@ -18,3 +18,4 @@
 * admin console
 * threading or multiple processes
 * authentication
+* access individual items in feed
