@@ -38,7 +38,7 @@ describe "Omnivore" do
     end
   end
 
-  shared_examples_for "a successful request" do |request, content, content_type|
+  shared_examples_for "a successful request" do |request, content, content_type, include = false|
 
     before(:each) do
       get request
@@ -49,7 +49,7 @@ describe "Omnivore" do
     end
 
     it "returns the response feed" do
-      last_response.body.should include content
+      include ? (last_response.body.should include content) : (last_response.body.should == content)
     end
 
     it "returns a content type of xml" do
@@ -58,7 +58,7 @@ describe "Omnivore" do
   end
 
   describe "GET /" do
-    it_should_behave_like "a successful request", '/', "Hi. I'm Omnivore, your friendly feed cache server.", "html"
+    it_should_behave_like "a successful request", '/', "Hi. I'm Omnivore, your friendly feed cache server.", "html", true
   end
 
   describe "GET /feed" do
@@ -148,7 +148,7 @@ describe "Omnivore" do
         Redis.any_instance.stub(:hgetall).with(feed_url).and_return({})
       end
 
-      it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss', "Feed not found.", "json"
+      it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss', "Feed not found.", "json", true
     end
 
     context "The feed is stored" do
@@ -175,7 +175,7 @@ describe "Omnivore" do
           get "/feed_data?url=#{feed_url}&include_feed=true"
         end
 
-        it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true', "Stored feed", "json"
+        it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true', "Stored feed", "json", true
 
         it "returns as the response a JSON object with the feed url as the key
         and the feed data values in the response, including the feed itself" do
