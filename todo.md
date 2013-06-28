@@ -16,4 +16,9 @@
 * accurate counts / other meta data across multiple database set up
 * admin console
 * threading or multiple processes
+<<<<<<< HEAD
 * add rackup file
+=======
+* authentication
+* access individual items in feed
+>>>>>>> 62e89bce672090bf2205bba4fc0236f032ed3b8e
