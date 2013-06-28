@@ -17,3 +17,4 @@
 * accurate counts / other meta data across multiple database set up
 * admin console
 * threading or multiple processes
+* authentication
