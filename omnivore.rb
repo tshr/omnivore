@@ -20,6 +20,15 @@ module Cached
   end
 end
 
+helpers do
+  def get_and_store_feed(request_url, count, redis_client)
+    response = RestClient.get request_url
+    # Updated time value stored in Unix epoch seconds
+    redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
+    response
+  end
+end
+
 get '/' do
   File.read(File.join('public', 'index.html'))
 end
@@ -30,15 +39,11 @@ get '/feed' do
   feed_hash = redis.hgetall request_url
 
   if feed_hash.empty?
-    response = RestClient.get request_url
-    redis.hmset(request_url, "feed", response, "count", 1, "updated", Time.now.to_i) #updated time value stored in Unix epoch seconds
-    response
+    response = get_and_store_feed(request_url, 1, redis)
   else
     feed_hash.extend(Cached)
     if feed_hash.expired?
-      response = RestClient.get request_url
-      redis.hmset(request_url, "feed", response, "count", feed_hash["count"].to_i + 1, "updated", Time.now.to_i)
-      response
+      response = get_and_store_feed(request_url, feed_hash["count"].to_i + 1, redis)
     else
       redis.hincrby(request_url, "count", 1)
       feed_hash["feed"]

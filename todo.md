@@ -19,3 +19,4 @@
 * add rackup file
 * authentication
 * access individual items in feed
+* find better place to initialize redis client
