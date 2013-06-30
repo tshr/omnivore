@@ -1,4 +1,3 @@
-* test suite
 * error handling / atomizing all operations
 * feed domain level counts
 * feed reformatting
@@ -17,3 +16,7 @@
 * accurate counts / other meta data across multiple database set up
 * admin console
 * threading or multiple processes
+* add rackup file
+* authentication
+* access individual items in feed
+* find better place to initialize redis client
