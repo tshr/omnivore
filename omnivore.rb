@@ -29,16 +29,17 @@ helpers do
       content_type :json
       return {error: "Could not connect to feed source."}.to_json
     end
-      # Updated time value stored in Unix epoch seconds
-      if count
-        redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
-      else
-        redis_client.multi do
-          redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)
-          redis_client.hincrby(request_url, "count", 1)
-        end
+
+    # Updated time value stored in Unix epoch seconds
+    if count
+      redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
+    else
+      redis_client.multi do
+        redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)
+        redis_client.hincrby(request_url, "count", 1)
       end
-      response
+    end
+    response
   end
 end
 
