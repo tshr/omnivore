@@ -1,4 +1,5 @@
-* error handling / atomizing all operations
+* error handling
+* atomizing all operations
 * feed domain level counts
 * feed reformatting
 * performance testing
