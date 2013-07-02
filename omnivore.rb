@@ -21,7 +21,7 @@ module Cached
 end
 
 helpers do
-  def get_and_store_feed(request_url, count, redis_client)
+  def get_and_store_feed(request_url, redis_client, count = false)
 
     begin
       response = RestClient.get request_url
@@ -30,7 +30,12 @@ helpers do
       return {error: "Could not connect to feed source."}.to_json
     end
       # Updated time value stored in Unix epoch seconds
-      redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
+      if count
+        redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
+      else
+        redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)
+        redis_client.hincrby(request_url, "count", 1)
+      end
       response
   end
 end
@@ -43,14 +48,15 @@ get '/feed' do
   content_type 'text/xml'
 
   request_url = params[:url]
+
   feed_hash = redis.hgetall request_url
 
   if feed_hash.empty?
-    response = get_and_store_feed(request_url, 1, redis)
+    response = get_and_store_feed(request_url, redis, 1)
   else
     feed_hash.extend(Cached)
     if feed_hash.expired?
-      response = get_and_store_feed(request_url, feed_hash["count"].to_i + 1, redis)
+      response = get_and_store_feed(request_url, redis)
     else
       redis.hincrby(request_url, "count", 1)
       feed_hash["feed"]

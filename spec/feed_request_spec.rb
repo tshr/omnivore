@@ -56,8 +56,7 @@ describe "GET /feed" do
             count by one and sets 'updated' to the current time" do
           Redis.any_instance.should_receive(:hmset).with(feed_url, "feed",
                                                          "successful response",
-                                                         "count", returned_feed_count.to_i + 1, "updated",
-                                                         Time.now.to_i)
+                                                         "updated", Time.now.to_i)
           get '/feed?url=' + feed_url
         end
 
