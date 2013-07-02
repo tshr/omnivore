@@ -9,7 +9,7 @@ shared_examples_for "a successful request" do |request, content, content_type, i
   end
 
   it "returns the expected response feed" do
-    include ? (last_response.body.should include content) : (last_response.body.should == content)
+    include ? (last_response.body.should include content) : (last_response.body.should eq content)
   end
 
   it "returns the expected content type" do
