@@ -1,6 +1,6 @@
 ##Omnivore
 
-Feed caching with Redis and Sinatra
+Request caching with Redis and Sinatra
 
 ##Dependencies
 
@@ -15,6 +15,6 @@ Feed caching with Redis and Sinatra
 * timecop
 * debugger
 
-## License
+##License
 
 Omnivore is released under the [MIT License](http://www.opensource.org/licenses/MIT).
