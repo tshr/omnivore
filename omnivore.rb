@@ -33,8 +33,10 @@ helpers do
       if count
         redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
       else
-        redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)
-        redis_client.hincrby(request_url, "count", 1)
+        redis_client.multi do
+          redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)
+          redis_client.hincrby(request_url, "count", 1)
+        end
       end
       response
   end
