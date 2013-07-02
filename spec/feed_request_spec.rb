@@ -85,4 +85,15 @@ describe "GET /feed" do
       end
     end
   end
+
+  context "requesting an invalid feed URL" do
+    let(:invalid_feed_url) {'foo'}
+
+    it "returns the expected response feed" do
+      RestClient.stub(:get).with(invalid_feed_url).and_raise(SocketError.new)
+      get '/feed?url=' + invalid_feed_url
+      last_response.header["Content-Type"].should include "json"
+      last_response.body.should include "Could not connect to feed source."
+    end
+  end
 end

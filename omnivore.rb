@@ -22,10 +22,16 @@ end
 
 helpers do
   def get_and_store_feed(request_url, count, redis_client)
-    response = RestClient.get request_url
-    # Updated time value stored in Unix epoch seconds
-    redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
-    response
+
+    begin
+      response = RestClient.get request_url
+    rescue
+      content_type :json
+      return {error: "Could not connect to feed source."}.to_json
+    end
+      # Updated time value stored in Unix epoch seconds
+      redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
+      response
   end
 end
 
@@ -35,6 +41,7 @@ end
 
 get '/feed' do
   content_type 'text/xml'
+
   request_url = params[:url]
   feed_hash = redis.hgetall request_url
 
