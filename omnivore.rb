@@ -1,14 +1,9 @@
-#!/usr/bin/env ruby
-
-require 'sinatra'
-require 'redis'
-require 'rest-client'
 require 'json'
-require 'debugger'
+config_file File.join(File.dirname(__FILE__), '.', 'omnivore_config.yml')
 
 redis = Redis.new
 
-TIME_TO_LIVE = 60 #in seconds
+TIME_TO_LIVE = settings.time_to_live
 
 module Cached
   def expired?
@@ -21,7 +16,7 @@ module Cached
 end
 
 helpers do
-  def get_and_store_feed(request_url, redis_client, count = false)
+  def get_and_store_feed(request_url, redis_client, count = nil)
 
     begin
       response = RestClient.get request_url

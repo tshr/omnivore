@@ -1,6 +1,6 @@
+require 'bundler'
+Bundler.require
 require File.join(File.dirname(__FILE__), '..', 'omnivore.rb')
-require 'rack/test'
-require 'timecop'
 
 set :environment, :test
 set :raise_errors, true
