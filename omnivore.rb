@@ -15,7 +15,6 @@ get '/feed' do
   content_type 'text/xml'
 
   request_url = params[:url]
-
   feed_hash = redis.hgetall request_url
 
   if feed_hash.empty?
