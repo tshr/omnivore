@@ -17,7 +17,6 @@ end
 
 helpers do
   def get_and_store_feed(request_url, redis_client, count = nil)
-
     begin
       response = RestClient.get request_url
     rescue

@@ -49,6 +49,7 @@ describe "GET /feed" do
           )
 
           RestClient.stub(:get).with(feed_url).and_return("successful response")
+          Redis.any_instance.stub(:hincrby)
           Redis.any_instance.stub(:hmset)
         end
 
@@ -57,6 +58,7 @@ describe "GET /feed" do
           Redis.any_instance.should_receive(:hmset).with(feed_url, "feed",
                                                          "successful response",
                                                          "updated", Time.now.to_i)
+          Redis.any_instance.should_receive(:hincrby).with(feed_url, "count", 1)
           get '/feed?url=' + feed_url
         end
 
