@@ -10,14 +10,7 @@
 * go through Google Reader API and see if there's features that sound like they'd be good to add
 * feed reformatting
 * performance testing
-* master / slave redis server deployment
-* configurable db backup
-* server fail over protection
-* server capacity manager
-* duplicate url checking
-* Database replication
-* accurate counts / other meta data across multiple database set up
-* admin console
+* duplicate content checking using hashing
 * authentication
 * threading or multiple processes
 * access individual items in feeds
