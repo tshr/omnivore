@@ -4,7 +4,6 @@
 * feed domain level counts
 * find better place to initialize redis client
 * figure out stubbing so it can be done directly on redis client instead of Redis.any_instance
-* launch redis server on rackup
 
 ##Lower Priority / Possibly Bad Ideas
 
@@ -22,3 +21,4 @@
 * authentication
 * threading or multiple processes
 * access individual items in feeds
+* cleaner way of checking if redis instance is running and abort app if not
