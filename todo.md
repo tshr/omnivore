@@ -1,12 +1,11 @@
-##Probably Good Ideas
-
-* d3 / angular visualization of feed request patterns
-* feed domain level counts
 * find better place to initialize redis client
 * figure out stubbing so it can be done directly on redis client instead of Redis.any_instance
 
-##Lower Priority / Possibly Bad Ideas
+##Lower Priority
 
+* change name references from feed to response
+* d3 / angular visualization of feed request patterns
+* feed domain level counts
 * go through Google Reader API and see if there's features that sound like they'd be good to add
 * feed reformatting
 * performance testing
