@@ -7,7 +7,7 @@ describe "GET /feed_data" do
   context "The feed is not stored" do
 
     before(:each) do
-      Redis.any_instance.stub(:hgetall).with(feed_url).and_return({})
+      REDIS.stub(:hgetall).with(feed_url).and_return({})
     end
 
     it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss', "Feed not found.", "json", true
@@ -29,16 +29,16 @@ describe "GET /feed_data" do
     }
 
     before(:each) do
-      Redis.any_instance.stub(:hgetall).with(feed_url).and_return example_feed_hash
+      REDIS.stub(:hgetall).with(feed_url).and_return example_feed_hash
     end
 
     context "The include feed param is set to 'true'" do
       before(:each) do
-        Redis.any_instance.stub(:hincrby).with(feed_url, "count", 1)
+        REDIS.stub(:hincrby).with(feed_url, "count", 1)
       end
 
       it "increments the feed's count by 1" do
-        Redis.any_instance.should_receive(:hincrby).with(feed_url, "count", 1)
+        REDIS.should_receive(:hincrby).with(feed_url, "count", 1)
         get "/feed_data?url=#{feed_url}&include_feed=true"
       end
 

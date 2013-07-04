@@ -1,5 +1,4 @@
-* find better place to initialize redis client
-* figure out stubbing so it can be done directly on redis client instead of Redis.any_instance
+* spec for get request helper method
 
 ##Lower Priority
 

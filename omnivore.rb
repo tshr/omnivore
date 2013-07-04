@@ -71,7 +71,8 @@ helpers do
 
     # Updated time value stored in Unix epoch seconds
     if create
-      redis_client.hmset(request_url, "feed", response, "count", 1, "created", Time.now.to_i, "updated", Time.now.to_i)
+      now = Time.now.to_i
+      redis_client.hmset(request_url, "feed", response, "count", 1, "created", now, "updated", now)
     else
       redis_client.multi do
         redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)

@@ -8,15 +8,15 @@ describe "GET /feed" do
 
     context "and the feed isn't cached" do
       before(:each) do
-        Redis.any_instance.stub(:hgetall).with(feed_url).and_return({})
+        REDIS.stub(:hgetall).with(feed_url).and_return({})
         RestClient.stub(:get).with(feed_url).and_return("successful response")
-        Redis.any_instance.stub(:hmset)
+        REDIS.stub(:hmset)
       end
 
       it "stores the feed url and response in the database, with the 'count' set to
           1, and 'created' and 'updated' set to the current time" do
 
-        Redis.any_instance.should_receive(:hmset).with(feed_url,
+        REDIS.should_receive(:hmset).with(feed_url,
                                                        "feed", "successful response",
                                                        "count", 1,
                                                        "created", Time.now.to_i,
@@ -42,7 +42,7 @@ describe "GET /feed" do
         let(:returned_feed_count) {"1"}
 
         before(:each) do
-          Redis.any_instance.stub(:hgetall).with(feed_url).and_return(
+          REDIS.stub(:hgetall).with(feed_url).and_return(
             { "feed" => "cached feed",
               "count" => returned_feed_count,
               "updated" => older_than_time_to_live_ago.to_s
@@ -50,16 +50,16 @@ describe "GET /feed" do
           )
 
           RestClient.stub(:get).with(feed_url).and_return("successful response")
-          Redis.any_instance.stub(:hincrby)
-          Redis.any_instance.stub(:hmset)
+          REDIS.stub(:hincrby)
+          REDIS.stub(:hmset)
         end
 
         it "resets the feed hash with the refreshed response, increments the
             count by one and sets 'updated' to the current time" do
-          Redis.any_instance.should_receive(:hmset).with(feed_url, "feed",
+          REDIS.should_receive(:hmset).with(feed_url, "feed",
                                                          "successful response",
                                                          "updated", Time.now.to_i)
-          Redis.any_instance.should_receive(:hincrby).with(feed_url, "count", 1)
+          REDIS.should_receive(:hincrby).with(feed_url, "count", 1)
           get '/feed?url=' + feed_url
         end
 
@@ -68,18 +68,18 @@ describe "GET /feed" do
 
       context "and it isn't expired" do
         before(:each) do
-          Redis.any_instance.stub(:hgetall).with(feed_url).and_return(
+          REDIS.stub(:hgetall).with(feed_url).and_return(
             { "feed" => "cached feed",
               "count" => "1",
               "updated" => younger_than_time_to_live_ago.to_s
             }
           )
 
-          Redis.any_instance.stub(:hincrby).with(feed_url, "count", 1)
+          REDIS.stub(:hincrby).with(feed_url, "count", 1)
         end
 
         it "increments the feed's count by 1" do
-          Redis.any_instance.should_receive(:hincrby).with(feed_url, "count", 1)
+          REDIS.should_receive(:hincrby).with(feed_url, "count", 1)
           get '/feed?url=' + feed_url
         end
 
