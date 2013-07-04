@@ -1,19 +1,23 @@
 require 'json'
 config_file File.join(File.dirname(__FILE__), '.', 'omnivore_config.yml')
 
+
 configure do
   REDIS = Redis.new
   TIME_TO_LIVE = settings.time_to_live
 end
 
+
 get '/' do
   File.read(File.join('public', 'index.html'))
 end
+
 
 get '/configs' do
   content_type :json
   { "Cached item time to live" => "#{TIME_TO_LIVE.to_s} seconds" }.to_json
 end
+
 
 get '/feed' do
   content_type 'text/xml'
@@ -40,16 +44,14 @@ get '/feed_data' do
 
   request_url = params[:url]
   include_feed = (params[:include_feed] == "true")
-  feed_hash = REDIS.hgetall request_url
 
-  if feed_hash.empty?
-    {error: "Feed not found."}.to_json
-  else
-    # If feed is included in data request, count is incremented, otherwise it isn't
-    include_feed ? REDIS.hincrby(request_url, "count", 1) : feed_hash.delete("feed")
-    response_hash = { request_url => feed_hash }
-    response_hash.to_json
-  end
+  get_feed_data(request_url, include_feed).to_json
+end
+
+
+get '/all_feed_data' do
+  content_type :json
+  REDIS.keys.map { |key| get_feed_data key }.to_json
 end
 
 
@@ -65,6 +67,7 @@ end
 
 
 helpers do
+
   def get_and_store_feed(request_url, redis_client, create = false)
     begin
       response = RestClient.get request_url
@@ -84,5 +87,18 @@ helpers do
       end
     end
     response
+  end
+
+  def get_feed_data (request_url, include_feed = false)
+    feed_hash = REDIS.hgetall request_url
+
+    if feed_hash.empty?
+      {request_url => {error: "Feed not found."}}.to_json
+    else
+      # If feed is included in data request, count is incremented
+      include_feed ? REDIS.hincrby(request_url, "count", 1) : feed_hash.delete("feed")
+      response_hash = { request_url => feed_hash }
+      response_hash
+    end
   end
 end

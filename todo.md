@@ -2,6 +2,7 @@
 
 ##Lower Priority
 
+* spec for request all feed data
 * spec for get request helper method
 * change naming of vars etc, from feed to response
 * d3 / angular visualization of feed request patterns
