@@ -10,6 +10,10 @@ get '/' do
   File.read(File.join('public', 'index.html'))
 end
 
+get '/configs' do
+  content_type :json
+  { "Cached item time to live" => "#{TIME_TO_LIVE.to_s} seconds" }.to_json
+end
 
 get '/feed' do
   content_type 'text/xml'

@@ -1,10 +1,9 @@
-* spec for get request helper method
-* request for application config data
 * put up on aws or heroku
 
 ##Lower Priority
 
-* change name references from feed to response
+* spec for get request helper method
+* change naming of vars etc, from feed to response
 * d3 / angular visualization of feed request patterns
 * feed domain level counts
 * go through Google Reader API and see if there's features that sound like they'd be good to add
@@ -13,5 +12,5 @@
 * duplicate content checking using hashing
 * authentication
 * threading or multiple processes
-* access individual items in feeds
+* access individual items in atom / rss feeds
 * cleaner way of checking if redis instance is running and abort app if not
