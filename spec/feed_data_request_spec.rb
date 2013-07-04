@@ -23,7 +23,8 @@ describe "GET /feed_data" do
       {
         "feed" => "Stored feed",
         "count" => "5",
-        "updated" => Time.now.to_i.to_s
+        "updated" => Time.now.to_i.to_s,
+        "created" => (Time.now.to_i - 10).to_s
       }
     }
 
@@ -42,17 +43,17 @@ describe "GET /feed_data" do
       end
 
       it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true',
-      {"http://www.example.com/feed.rss" => {"feed" => "Stored feed","count" => "5","updated" => Time.now.to_i.to_s}}.to_json, "json"
+      {"http://www.example.com/feed.rss" => {"feed" => "Stored feed","count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
     end
 
     context "The include feed param is not set" do
       it_should_behave_like "a successful request", "/feed_data?url=http://www.example.com/feed.rss",
-      { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s} }.to_json, "json"
+      { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
     end
 
     context "The include feed param is set to a value other than true" do
       it_should_behave_like "a successful request", "/feed_data?url=http://www.example.com/feed.rss&include_feed=false",
-      { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s} }.to_json, "json"
+      { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
     end
   end
 end

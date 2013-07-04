@@ -18,7 +18,7 @@ get '/feed' do
   feed_hash = REDIS.hgetall request_url
 
   if feed_hash.empty?
-    response = get_and_store_feed(request_url, REDIS, 1)
+    response = get_and_store_feed(request_url, REDIS, true)
   else
     feed_hash.extend(Cached)
     if feed_hash.expired?
@@ -61,7 +61,7 @@ end
 
 
 helpers do
-  def get_and_store_feed(request_url, redis_client, count = nil)
+  def get_and_store_feed(request_url, redis_client, create = false)
     begin
       response = RestClient.get request_url
     rescue
@@ -70,8 +70,8 @@ helpers do
     end
 
     # Updated time value stored in Unix epoch seconds
-    if count
-      redis_client.hmset(request_url, "feed", response, "count", count, "updated", Time.now.to_i)
+    if create
+      redis_client.hmset(request_url, "feed", response, "count", 1, "created", Time.now.to_i, "updated", Time.now.to_i)
     else
       redis_client.multi do
         redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)

@@ -14,12 +14,13 @@ describe "GET /feed" do
       end
 
       it "stores the feed url and response in the database, with the 'count' set to
-          1, and 'updated' set to the current time" do
+          1, and 'created' and 'updated' set to the current time" do
 
-        Redis.any_instance.should_receive(:hmset).with(feed_url, "feed",
-                                                       "successful response",
-                                                       "count", 1, "updated",
-                                                       Time.now.to_i)
+        Redis.any_instance.should_receive(:hmset).with(feed_url,
+                                                       "feed", "successful response",
+                                                       "count", 1,
+                                                       "created", Time.now.to_i,
+                                                       "updated", Time.now.to_i)
         get '/feed?url=' + feed_url
       end
 
