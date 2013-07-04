@@ -1,5 +1,6 @@
 * spec for get request helper method
-* update feed_data request so that if include_feed is true and its expired it regets the feed, or remove include_feed all together, or remove incrementing
+* request for application config data
+* put up on aws or heroku
 
 ##Lower Priority
 
