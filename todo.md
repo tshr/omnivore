@@ -1,4 +1,4 @@
-* put up on aws or heroku
+* put up on digital ocean
 
 ##Lower Priority
 
