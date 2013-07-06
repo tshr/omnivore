@@ -1,7 +1,3 @@
-* put up on digital ocean
-
-##Lower Priority
-
 * spec for helper methods
 * change naming of vars etc, from feed to response
 * d3 / angular visualization of feed request patterns
