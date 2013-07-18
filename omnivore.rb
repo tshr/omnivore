@@ -19,39 +19,39 @@ get '/configs' do
 end
 
 
-get '/feed' do
+get '/request' do
   content_type 'text/xml'
 
   request_url = params[:url]
-  feed_hash = REDIS.hgetall request_url
+  request_hash = REDIS.hgetall request_url
 
-  if feed_hash.empty?
-    response = get_and_store_feed(request_url, REDIS, true)
+  if request_hash.empty?
+    response = get_and_store_request(request_url, REDIS, true)
   else
-    feed_hash.extend(Cached)
-    if feed_hash.expired?
-      response = get_and_store_feed(request_url, REDIS)
+    request_hash.extend(Cached)
+    if request_hash.expired?
+      response = get_and_store_request(request_url, REDIS)
     else
       REDIS.hincrby(request_url, "count", 1)
-      feed_hash["feed"]
+      request_hash["request"]
     end
   end
 end
 
 
-get '/feed_data' do
+get '/request_data' do
   content_type :json
 
   request_url = params[:url]
-  include_feed = (params[:include_feed] == "true")
+  include_response = (params[:include_response] == "true")
 
-  get_feed_data(request_url, include_feed).to_json
+  get_request_data(request_url, include_response).to_json
 end
 
 
-get '/all_feed_data' do
+get '/all_requests' do
   content_type :json
-  REDIS.keys.map { |key| get_feed_data key }.to_json
+  REDIS.keys.map { |key| get_request_data key }.to_json
 end
 
 
@@ -68,36 +68,36 @@ end
 
 helpers do
 
-  def get_and_store_feed(request_url, redis_client, create = false)
+  def get_and_store_request(request_url, redis_client, create = false)
     begin
       response = RestClient.get request_url
     rescue
       content_type :json
-      return {error: "Could not connect to feed source."}.to_json
+      return {error: "Could not connect to source."}.to_json
     end
 
     # Updated time value stored in Unix epoch seconds
     if create
       now = Time.now.to_i
-      redis_client.hmset(request_url, "feed", response, "count", 1, "created", now, "updated", now)
+      redis_client.hmset(request_url, "request", response, "count", 1, "created", now, "updated", now)
     else
       redis_client.multi do
-        redis_client.hmset(request_url, "feed", response, "updated", Time.now.to_i)
+        redis_client.hmset(request_url, "request", response, "updated", Time.now.to_i)
         redis_client.hincrby(request_url, "count", 1)
       end
     end
     response
   end
 
-  def get_feed_data (request_url, include_feed = false)
-    feed_hash = REDIS.hgetall request_url
+  def get_request_data (request_url, include_request = false)
+    request_hash = REDIS.hgetall request_url
 
-    if feed_hash.empty?
-      {request_url => {error: "Feed not found."}}.to_json
+    if request_hash.empty?
+      {request_url => {error: "Request data not found."}}.to_json
     else
-      # If feed is included in data request, count is incremented
-      include_feed ? REDIS.hincrby(request_url, "count", 1) : feed_hash.delete("feed")
-      response_hash = { request_url => feed_hash }
+      # If request is included, count is incremented
+      include_request ? REDIS.hincrby(request_url, "count", 1) : request_hash.delete("request")
+      response_hash = { request_url => request_hash }
       response_hash
     end
   end

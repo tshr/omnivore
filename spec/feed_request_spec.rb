@@ -1,34 +1,34 @@
 require 'spec_helper'
 require 'shared_examples'
 
-describe "GET /feed" do
-  context "requesting a valid feed URL" do
+describe "GET /request" do
+  context "requesting a valid URL" do
 
-    let(:feed_url) {'http://www.example.com/feed.rss'}
+    let(:url) {'http://www.example.com/feed.rss'}
 
-    context "and the feed isn't cached" do
+    context "and the request isn't cached" do
       before(:each) do
-        REDIS.stub(:hgetall).with(feed_url).and_return({})
-        RestClient.stub(:get).with(feed_url).and_return("successful response")
+        REDIS.stub(:hgetall).with(url).and_return({})
+        RestClient.stub(:get).with(url).and_return("successful response")
         REDIS.stub(:hmset)
       end
 
-      it "stores the feed url and response in the database, with the 'count' set to
+      it "stores the url and response in the database, with the 'count' set to
           1, and 'created' and 'updated' set to the current time" do
 
-        REDIS.should_receive(:hmset).with(feed_url,
-                                                       "feed", "successful response",
+        REDIS.should_receive(:hmset).with(url,
+                                                       "request", "successful response",
                                                        "count", 1,
                                                        "created", Time.now.to_i,
                                                        "updated", Time.now.to_i)
-        get '/feed?url=' + feed_url
+        get '/request?url=' + url
       end
 
-      it_should_behave_like "a successful request", '/feed?url=http://www.example.com/feed.rss', "successful response", "xml"
+      it_should_behave_like "a successful request", '/request?url=http://www.example.com/feed.rss', "successful response", "xml"
     end
 
-    context "and the feed is cached" do
-  
+    context "and the request is cached" do
+
       before(:each) do
         Timecop.freeze(Time.now)
       end
@@ -39,63 +39,64 @@ describe "GET /feed" do
 
       context "and it is expired" do
 
-        let(:returned_feed_count) {"1"}
+        let(:returned_request_count) {"1"}
 
         before(:each) do
-          REDIS.stub(:hgetall).with(feed_url).and_return(
-            { "feed" => "cached feed",
-              "count" => returned_feed_count,
+          REDIS.stub(:hgetall).with(url).and_return(
+            { "request" => "cached request",
+              "count" => returned_request_count,
               "updated" => older_than_time_to_live_ago.to_s
             }
           )
 
-          RestClient.stub(:get).with(feed_url).and_return("successful response")
+          RestClient.stub(:get).with(url).and_return("successful response")
           REDIS.stub(:hincrby)
           REDIS.stub(:hmset)
         end
 
-        it "resets the feed hash with the refreshed response, increments the
+        it "resets the response hash with the refreshed response, increments the
             count by one and sets 'updated' to the current time" do
-          REDIS.should_receive(:hmset).with(feed_url, "feed",
-                                                         "successful response",
-                                                         "updated", Time.now.to_i)
-          REDIS.should_receive(:hincrby).with(feed_url, "count", 1)
-          get '/feed?url=' + feed_url
+          REDIS.should_receive(:hmset).with(url, "request",
+                                                 "successful response",
+                                                 "updated",
+                                                 Time.now.to_i)
+          REDIS.should_receive(:hincrby).with(url, "count", 1)
+          get '/request?url=' + url
         end
 
-        it_should_behave_like "a successful request", '/feed?url=http://www.example.com/feed.rss', "successful response", "xml"
+        it_should_behave_like "a successful request", '/request?url=http://www.example.com/feed.rss', "successful response", "xml"
       end
 
       context "and it isn't expired" do
         before(:each) do
-          REDIS.stub(:hgetall).with(feed_url).and_return(
-            { "feed" => "cached feed",
+          REDIS.stub(:hgetall).with(url).and_return(
+            { "request" => "cached response",
               "count" => "1",
               "updated" => younger_than_time_to_live_ago.to_s
             }
           )
 
-          REDIS.stub(:hincrby).with(feed_url, "count", 1)
+          REDIS.stub(:hincrby).with(url, "count", 1)
         end
 
-        it "increments the feed's count by 1" do
-          REDIS.should_receive(:hincrby).with(feed_url, "count", 1)
-          get '/feed?url=' + feed_url
+        it "increments the request's count by 1" do
+          REDIS.should_receive(:hincrby).with(url, "count", 1)
+          get '/request?url=' + url
         end
 
-        it_should_behave_like "a successful request", '/feed?url=http://www.example.com/feed.rss', "cached feed", "xml"
+        it_should_behave_like "a successful request", '/request?url=http://www.example.com/feed.rss', "cached response", "xml"
       end
     end
   end
 
-  context "requesting an invalid feed URL" do
-    let(:invalid_feed_url) {'foo'}
+  context "requesting an invalid URL" do
+    let(:invalid_url) {'foo'}
 
-    it "returns the expected response feed" do
-      RestClient.stub(:get).with(invalid_feed_url).and_raise(SocketError.new)
-      get '/feed?url=' + invalid_feed_url
+    it "returns the expected response" do
+      RestClient.stub(:get).with(invalid_url).and_raise(SocketError.new)
+      get '/request?url=' + invalid_url
       last_response.header["Content-Type"].should include "json"
-      last_response.body.should include "Could not connect to feed source."
+      last_response.body.should include "Could not connect to source."
     end
   end
 end

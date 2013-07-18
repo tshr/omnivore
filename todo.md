@@ -1,9 +1,8 @@
 * spec for helper methods
-* change naming of vars etc, from feed to response
-* d3 / angular visualization of feed request patterns
-* feed domain level counts
+* d3 / angular visualization of request patterns
+* domain level counts
 * go through Google Reader API and see if there's features that sound like they'd be good to add
-* feed reformatting
+* response reformatting
 * performance testing
 * duplicate content checking using hashing
 * authentication

@@ -1,27 +1,27 @@
 require 'spec_helper'
 require 'shared_examples'
 
-describe "GET /feed_data" do
-  let(:feed_url) {'http://www.example.com/feed.rss'}
+describe "GET /request_data" do
+  let(:url) {'http://www.example.com/feed.rss'}
 
-  context "The feed is not stored" do
+  context "The request is not stored" do
 
     before(:each) do
-      REDIS.stub(:hgetall).with(feed_url).and_return({})
+      REDIS.stub(:hgetall).with(url).and_return({})
     end
 
-    it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss', "Feed not found.", "json", true
+    it_should_behave_like "a successful request", '/request_data?url=http://www.example.com/feed.rss', "Request data not found.", "json", true
   end
 
-  context "The feed is stored" do
+  context "The request is stored" do
 
     before(:each) do
       Timecop.freeze(Time.now)
     end
 
-    let (:example_feed_hash) {
+    let (:example_request_hash) {
       {
-        "feed" => "Stored feed",
+        "request" => "Stored request",
         "count" => "5",
         "updated" => Time.now.to_i.to_s,
         "created" => (Time.now.to_i - 10).to_s
@@ -29,30 +29,30 @@ describe "GET /feed_data" do
     }
 
     before(:each) do
-      REDIS.stub(:hgetall).with(feed_url).and_return example_feed_hash
+      REDIS.stub(:hgetall).with(url).and_return example_request_hash
     end
 
-    context "The include feed param is set to 'true'" do
+    context "The include request param is set to 'true'" do
       before(:each) do
-        REDIS.stub(:hincrby).with(feed_url, "count", 1)
+        REDIS.stub(:hincrby).with(url, "count", 1)
       end
 
-      it "increments the feed's count by 1" do
-        REDIS.should_receive(:hincrby).with(feed_url, "count", 1)
-        get "/feed_data?url=#{feed_url}&include_feed=true"
+      it "increments the request's count by 1" do
+        REDIS.should_receive(:hincrby).with(url, "count", 1)
+        get "/request_data?url=#{url}&include_response=true"
       end
 
-      it_should_behave_like "a successful request", '/feed_data?url=http://www.example.com/feed.rss&include_feed=true',
-      {"http://www.example.com/feed.rss" => {"feed" => "Stored feed","count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
+      it_should_behave_like "a successful request", '/request_data?url=http://www.example.com/feed.rss&include_response=true',
+      {"http://www.example.com/feed.rss" => {"request" => "Stored request","count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
     end
 
-    context "The include feed param is not set" do
-      it_should_behave_like "a successful request", "/feed_data?url=http://www.example.com/feed.rss",
+    context "The include request param is not set" do
+      it_should_behave_like "a successful request", "/request_data?url=http://www.example.com/feed.rss",
       { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
     end
 
-    context "The include feed param is set to a value other than true" do
-      it_should_behave_like "a successful request", "/feed_data?url=http://www.example.com/feed.rss&include_feed=false",
+    context "The include request param is set to a value other than true" do
+      it_should_behave_like "a successful request", "/request_data?url=http://www.example.com/feed.rss&include_request=false",
       { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
     end
   end
