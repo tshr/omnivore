@@ -44,7 +44,7 @@ describe "GET /request_data" do
       end
 
       it_should_behave_like "a successful request", '/request_data?url=http://www.example.com/feed.rss&include_response=true',
-      {"http://www.example.com/feed.rss" => {"response" => "Stored response","count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
+      {"http://www.example.com/feed.rss" => {"response" => "Stored response","count" => "6","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
     end
 
     context "The include response param is not set" do

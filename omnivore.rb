@@ -96,7 +96,12 @@ helpers do
       {request_url => {error: "Request data not found."}}.to_json
     else
       # If request is included, count is incremented
-      include_response ? REDIS.hincrby(request_url, "count", 1) : request_hash.delete("response")
+      if include_response
+        REDIS.hincrby(request_url, "count", 1)
+        request_hash["count"] = (request_hash["count"].to_i + 1).to_s
+      else
+        request_hash.delete("response")
+      end
       response_hash = { request_url => request_hash }
       response_hash
     end
