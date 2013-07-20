@@ -1,6 +1,6 @@
 ##Omnivore
 
-Request caching with Redis and Sinatra
+Response caching with Redis and Sinatra
 
 demo http://192.241.206.124:9292
 
