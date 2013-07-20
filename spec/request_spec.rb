@@ -17,7 +17,7 @@ describe "GET /request" do
           1, and 'created' and 'updated' set to the current time" do
 
         REDIS.should_receive(:hmset).with(url,
-                                                       "request", "successful response",
+                                                       "response", "successful response",
                                                        "count", 1,
                                                        "created", Time.now.to_i,
                                                        "updated", Time.now.to_i)
@@ -43,7 +43,7 @@ describe "GET /request" do
 
         before(:each) do
           REDIS.stub(:hgetall).with(url).and_return(
-            { "request" => "cached request",
+            { "response" => "cached response",
               "count" => returned_request_count,
               "updated" => older_than_time_to_live_ago.to_s
             }
@@ -56,7 +56,7 @@ describe "GET /request" do
 
         it "resets the response hash with the refreshed response, increments the
             count by one and sets 'updated' to the current time" do
-          REDIS.should_receive(:hmset).with(url, "request",
+          REDIS.should_receive(:hmset).with(url, "response",
                                                  "successful response",
                                                  "updated",
                                                  Time.now.to_i)
@@ -70,7 +70,7 @@ describe "GET /request" do
       context "and it isn't expired" do
         before(:each) do
           REDIS.stub(:hgetall).with(url).and_return(
-            { "request" => "cached response",
+            { "response" => "cached response",
               "count" => "1",
               "updated" => younger_than_time_to_live_ago.to_s
             }
