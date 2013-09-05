@@ -2,7 +2,7 @@
 
 Response caching with Redis and Sinatra
 
-demo http://192.241.206.124:9292
+[Demo!](http://192.241.206.124:9292)
 
 ##License
 
