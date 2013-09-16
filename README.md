@@ -6,4 +6,4 @@ Response caching with Redis and Sinatra
 
 ##License
 
-[MIT](http://www.opensource.org/licenses/MIT).
+[MIT](http://www.opensource.org/licenses/MIT)
