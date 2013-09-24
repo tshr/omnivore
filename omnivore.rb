@@ -73,7 +73,7 @@ helpers do
       response = RestClient.get request_url
     rescue
       content_type :json
-      return {error: "Could not connect to source."}.to_json
+      return { error: "Could not connect to source." }.to_json
     end
 
     # Updated time value stored in Unix epoch seconds
@@ -93,7 +93,7 @@ helpers do
     request_hash = REDIS.hgetall request_url
 
     if request_hash.empty?
-      {request_url => {error: "Request data not found."}}.to_json
+      { request_url => { error: "Request data not found." } }.to_json
     else
       # If request is included, count is incremented
       if include_response
@@ -102,8 +102,7 @@ helpers do
       else
         request_hash.delete("response")
       end
-      response_hash = { request_url => request_hash }
-      response_hash
+      { request_url => request_hash }
     end
   end
 end
