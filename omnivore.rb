@@ -93,7 +93,7 @@ helpers do
     request_hash = REDIS.hgetall request_url
 
     if request_hash.empty?
-      { request_url => { error: "Request data not found." } }.to_json
+      { request_url => { error: "Request data not found." } }
     else
       # If request is included, count is incremented
       if include_response
