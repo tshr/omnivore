@@ -2,24 +2,41 @@
 <html>
   <head>
     <title>Omnivore | Hello!</title>
+    <link href='http://fonts.googleapis.com/css?family=Nixie+One' rel='stylesheet' type='text/css'>
+    <style>
+      :root {
+        font-family: 'Nixie One', sans-serif;
+      }
+      a {
+        text-decoration: none;
+        color: #80b0d8;
+        font-weight: 900;
+      }
+
+      h2 {
+        font-size: 30px;
+        margin-bottom: 30px;
+        padding-bottom: 5px;
+      }
+    </style>
   </head>
   <body>
     <h2>Hi, I'm Omnivore.</h2>
     <p>To request a response</p>
-    <pre>/request?url={url} #returns xml</pre>
-    <hr />
+    <code>/request?url={url} #returns xml</code>
+    <hr>
     <p>To get the metadata for a request</p>
-    <pre>/request_data?url={url} #returns json</pre>
-    <hr />
+    <code>/request_data?url={url} #returns json</code>
+    <hr>
     <p>If you want the response along with the request's metadata add "include_response=true" to the request's GET params</p>
-    <pre>/request_data?url={url}&amp;include_response=true</pre>
-    <hr />
+    <code>/request_data?url={url}&amp;include_response=true</code>
+    <hr>
     <p>To view application configs</p>
-    <pre>/configs #configs are editable in omnivore_config.yml</pre>
-    <hr />
+    <code>/configs #configs are editable in omnivore_config.yml</code>
+    <hr>
     <p>To get the metadata for all stored requests</p>
-    <pre>/all_requests</pre>
-    <hr />
+    <code>/all_requests</code>
+    <hr>
     <p><a href="https://github.com/tshr/omnivore">Github</a></p>
   </body>
 </html>
