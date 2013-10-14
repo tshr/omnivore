@@ -48,6 +48,7 @@ describe "GET /request" do
           )
 
           RestClient.stub(:get).with(url).and_return("successful response")
+          REDIS.stub(:multi).and_yield
           REDIS.stub(:hincrby)
           REDIS.stub(:hmset)
         end
@@ -90,9 +91,10 @@ describe "GET /request" do
   context "requesting an invalid URL" do
     let(:invalid_url) {'foo'}
 
-    it "returns the expected response" do
-      RestClient.stub(:get).with(invalid_url).and_raise(SocketError.new)
+    it "returns a could not connect error in json" do
       REDIS.stub(:hgetall).with(invalid_url).and_return({})
+      RestClient.stub(:get).with(invalid_url).and_raise(SocketError.new)
+
       get '/request?url=' + invalid_url
       last_response.header["Content-Type"].should include "json"
       last_response.body.should include "Could not connect to source."
