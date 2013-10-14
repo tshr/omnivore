@@ -39,12 +39,10 @@ describe "GET /request" do
 
       context "and it is expired" do
 
-        let(:returned_request_count) {"1"}
-
         before(:each) do
           REDIS.stub(:hgetall).with(url).and_return(
             { "response" => "cached response",
-              "count" => returned_request_count,
+              "count" => "1",
               "updated" => older_than_time_to_live_ago.to_s
             }
           )
