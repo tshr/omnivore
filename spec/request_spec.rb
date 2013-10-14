@@ -92,6 +92,7 @@ describe "GET /request" do
 
     it "returns the expected response" do
       RestClient.stub(:get).with(invalid_url).and_raise(SocketError.new)
+      REDIS.stub(:hgetall).with(invalid_url).and_return({})
       get '/request?url=' + invalid_url
       last_response.header["Content-Type"].should include "json"
       last_response.body.should include "Could not connect to source."
