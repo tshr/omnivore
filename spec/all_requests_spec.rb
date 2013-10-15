@@ -9,5 +9,6 @@ describe "GET /all_requests" do
     end
   end
 
-  it_should_behave_like "a successful request", '/all_requests', [{"key1" => "stored data"}, {"key2" => "stored data"}, {"key3" => "stored data"}].to_json, "json"
+  it_should_behave_like "a successful request", '/all_requests',
+    [{"key1" => "stored data"}, {"key2" => "stored data"}, {"key3" => "stored data"}].to_json, "json"
 end

@@ -10,7 +10,8 @@ describe "GET /request_data" do
       REDIS.stub(:hgetall).with(url).and_return({})
     end
 
-    it_should_behave_like "a successful request", '/request_data?url=http://www.example.com/feed.rss', "Request data not found.", "json", true
+    it_should_behave_like "a successful request", '/request_data?url=http://www.example.com/feed.rss',
+      "Request data not found.", "json", true
   end
 
   context "The request is stored" do
@@ -38,18 +39,38 @@ describe "GET /request_data" do
         get "/request_data?url=#{url}&include_response=true"
       end
 
-      it_should_behave_like "a successful request", '/request_data?url=http://www.example.com/feed.rss&include_response=true',
-      {"http://www.example.com/feed.rss" => {"response" => "Stored response","count" => "6","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
+      it_should_behave_like "a successful request",
+        '/request_data?url=http://www.example.com/feed.rss&include_response=true',
+        { "http://www.example.com/feed.rss" =>
+          {
+            "response" => "Stored response",
+            "count" => "6",
+            "updated" => Time.now.to_i.to_s,
+            "created" => (Time.now.to_i - 10).to_s
+          }
+        }.to_json, "json"
     end
 
     context "The include response param is not set" do
-      it_should_behave_like "a successful request", "/request_data?url=http://www.example.com/feed.rss",
-      { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
+      it_should_behave_like "a successful request",
+        "/request_data?url=http://www.example.com/feed.rss",
+        { "http://www.example.com/feed.rss" =>
+          { "count" => "5",
+            "updated" => Time.now.to_i.to_s,
+            "created" => (Time.now.to_i - 10).to_s
+          }
+        }.to_json, "json"
     end
 
     context "The include response param is set to a value other than true" do
-      it_should_behave_like "a successful request", "/request_data?url=http://www.example.com/feed.rss&include_response=false",
-      { "http://www.example.com/feed.rss" => {"count" => "5","updated" => Time.now.to_i.to_s, "created" => (Time.now.to_i - 10).to_s} }.to_json, "json"
+      it_should_behave_like "a successful request",
+        "/request_data?url=http://www.example.com/feed.rss&include_response=false",
+        { "http://www.example.com/feed.rss" => 
+          { "count" => "5",
+            "updated" => Time.now.to_i.to_s,
+            "created" => (Time.now.to_i - 10).to_s
+          }
+        }.to_json, "json"
     end
   end
 end

@@ -24,7 +24,8 @@ describe "GET /request" do
         get '/request?url=' + url
       end
 
-      it_should_behave_like "a successful request", '/request?url=http://www.example.com/feed.rss', "successful response", "xml"
+      it_should_behave_like "a successful request",
+        '/request?url=http://www.example.com/feed.rss', "successful response", "xml"
     end
 
     context "and the request is cached" do
@@ -62,7 +63,8 @@ describe "GET /request" do
           get '/request?url=' + url
         end
 
-        it_should_behave_like "a successful request", '/request?url=http://www.example.com/feed.rss', "successful response", "xml"
+        it_should_behave_like "a successful request",
+          '/request?url=http://www.example.com/feed.rss', "successful response", "xml"
       end
 
       context "and it isn't expired" do
@@ -83,7 +85,8 @@ describe "GET /request" do
           get '/request?url=' + url
         end
 
-        it_should_behave_like "a successful request", '/request?url=http://www.example.com/feed.rss', "cached response", "xml"
+        it_should_behave_like "a successful request",
+          '/request?url=http://www.example.com/feed.rss', "cached response", "xml"
       end
     end
   end
