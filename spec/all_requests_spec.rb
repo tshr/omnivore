@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'shared_examples'
 
-
 describe "GET /all_requests" do
   before(:each) do
     REDIS.stub(:keys).and_return(["key1", "key2", "key3"])

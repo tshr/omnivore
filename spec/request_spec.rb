@@ -17,10 +17,10 @@ describe "GET /request" do
           1, and 'created' and 'updated' set to the current time" do
 
         REDIS.should_receive(:hmset).with(url,
-                                                       "response", "successful response",
-                                                       "count", 1,
-                                                       "created", Time.now.to_i,
-                                                       "updated", Time.now.to_i)
+                                          "response", "successful response",
+                                          "count", 1,
+                                          "created", Time.now.to_i,
+                                          "updated", Time.now.to_i)
         get '/request?url=' + url
       end
 
@@ -34,12 +34,11 @@ describe "GET /request" do
       end
 
       let(:time_to_live_ago) {Time.now.to_i - TIME_TO_LIVE}
-      let(:older_than_time_to_live_ago) {time_to_live_ago - 1}
-      let(:younger_than_time_to_live_ago) {time_to_live_ago + 1}
 
       context "and it is expired" do
 
         before(:each) do
+          older_than_time_to_live_ago = time_to_live_ago - 1
           REDIS.stub(:hgetall).with(url).and_return(
             { "response" => "cached response",
               "count" => "1",
@@ -68,6 +67,7 @@ describe "GET /request" do
 
       context "and it isn't expired" do
         before(:each) do
+          younger_than_time_to_live_ago = time_to_live_ago + 1
           REDIS.stub(:hgetall).with(url).and_return(
             { "response" => "cached response",
               "count" => "1",

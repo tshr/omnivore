@@ -19,23 +19,18 @@ describe "GET /request_data" do
       Timecop.freeze(Time.now)
     end
 
-    let (:example_request_hash) {
-      {
+    before(:each) do
+      REDIS.stub(:hgetall).with(url).and_return({
         "response" => "Stored response",
         "count" => "5",
         "updated" => Time.now.to_i.to_s,
         "created" => (Time.now.to_i - 10).to_s
-      }
-    }
-
-    before(:each) do
-      REDIS.stub(:hgetall).with(url).and_return example_request_hash
+      })
     end
 
     context "The include response param is set to 'true'" do
       before(:each) do
-        REDIS.stub(:hincrby).with(url, "count", 1)
-        Timecop.freeze(Time.now)
+        REDIS.stub(:hincrby)
       end
 
       it "increments the request's count by 1" do
