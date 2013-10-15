@@ -18,9 +18,6 @@ describe "GET /request_data" do
 
     before(:each) do
       Timecop.freeze(Time.now)
-    end
-
-    before(:each) do
       REDIS.stub(:hgetall).with(url).and_return({
         "response" => "Stored response",
         "count" => "5",
