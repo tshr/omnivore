@@ -73,7 +73,7 @@ helpers do
       response = RestClient.get request_url
     rescue
       content_type :json
-      { error: "Could not connect to source." }.to_json
+      return { error: "Could not connect to source." }.to_json
     end
 
     # Updated time value stored in Unix epoch seconds
