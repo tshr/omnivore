@@ -24,8 +24,8 @@ get '/request' do
   if response_hash.empty?
     response = get_and_store_response(request_url, true)
   else
-    response_hash.extend(Cached)
-    if response_hash.expired?
+    # Check if expired
+    if (response_hash["updated"].to_i + TIME_TO_LIVE) < Time.now.to_i
       response = get_and_store_response(request_url)
     else
       REDIS.hincrby(request_url, "count", 1)
@@ -46,16 +46,6 @@ end
 get '/all_requests' do
   content_type :json
   REDIS.keys.map { |key| get_request_data key }.to_json
-end
-
-module Cached
-  def expired?
-    if self["updated"]
-      (self["updated"].to_i + TIME_TO_LIVE) < Time.now.to_i
-    else
-      false
-    end
-  end
 end
 
 helpers do
