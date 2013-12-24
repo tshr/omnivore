@@ -22,11 +22,11 @@ get '/request' do
   response_hash = REDIS.hgetall request_url
 
   if response_hash.empty?
-    response = get_and_store_response(request_url, true)
+    get_and_store_response(request_url, true)
   else
     # Check if expired
     if (response_hash["updated"].to_i + TIME_TO_LIVE) < Time.now.to_i
-      response = get_and_store_response(request_url)
+      get_and_store_response(request_url)
     else
       REDIS.hincrby(request_url, "count", 1)
       response_hash["response"]
