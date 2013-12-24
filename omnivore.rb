@@ -1,23 +1,19 @@
 require 'json'
 config_file File.join(File.dirname(__FILE__), '.', 'omnivore_config.yml')
 
-
 configure do
   REDIS = Redis.new
   TIME_TO_LIVE = settings.time_to_live
 end
 
-
 get '/' do
   File.read(File.join('public', 'index.html'))
 end
-
 
 get '/configs' do
   content_type :json
   { "Cached item time to live" => "#{TIME_TO_LIVE.to_s} seconds" }.to_json
 end
-
 
 get '/request' do
   content_type 'text/xml'
@@ -26,18 +22,17 @@ get '/request' do
   response_hash = REDIS.hgetall request_url
 
   if response_hash.empty?
-    response = get_and_store_response(request_url, REDIS, true)
+    response = get_and_store_response(request_url, true)
   else
     response_hash.extend(Cached)
     if response_hash.expired?
-      response = get_and_store_response(request_url, REDIS)
+      response = get_and_store_response(request_url)
     else
       REDIS.hincrby(request_url, "count", 1)
       response_hash["response"]
     end
   end
 end
-
 
 get '/request_data' do
   content_type :json
@@ -48,12 +43,10 @@ get '/request_data' do
   get_request_data(request_url, include_response).to_json
 end
 
-
 get '/all_requests' do
   content_type :json
   REDIS.keys.map { |key| get_request_data key }.to_json
 end
-
 
 module Cached
   def expired?
@@ -65,10 +58,9 @@ module Cached
   end
 end
 
-
 helpers do
 
-  def get_and_store_response(request_url, redis_client, create = false)
+  def get_and_store_response(request_url, create = false)
     begin
       response = RestClient.get request_url
     rescue
@@ -79,11 +71,11 @@ helpers do
     # Updated time value stored in Unix epoch seconds
     if create
       now = Time.now.to_i
-      redis_client.hmset(request_url, "response", response, "count", 1, "created", now, "updated", now)
+      REDIS.hmset(request_url, "response", response, "count", 1, "created", now, "updated", now)
     else
-      redis_client.multi do
-        redis_client.hmset(request_url, "response", response, "updated", Time.now.to_i)
-        redis_client.hincrby(request_url, "count", 1)
+      REDIS.multi do
+        REDIS.hmset(request_url, "response", response, "updated", Time.now.to_i)
+        REDIS.hincrby(request_url, "count", 1)
       end
     end
     response
