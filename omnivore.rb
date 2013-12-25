@@ -21,15 +21,16 @@ get '/request' do
   request_url = params[:url]
   response_hash = REDIS.hgetall request_url
 
-  if response_hash.empty?
-    get_and_store_response(request_url, true)
-  # Check if expired
-  elsif response_hash["updated"].to_i + TIME_TO_LIVE < Time.now.to_i
-    get_and_store_response(request_url)
-  else
-    REDIS.hincrby(request_url, "count", 1)
-    response_hash["response"]
-  end
+  response = if response_hash.empty?
+               get_and_store_response(request_url, true)
+             # Check if expired
+             elsif response_hash["updated"].to_i + TIME_TO_LIVE < Time.now.to_i
+               get_and_store_response(request_url)
+             else
+               REDIS.hincrby(request_url, "count", 1)
+               response_hash["response"]
+             end
+  response
 end
 
 get '/request_data' do
@@ -74,7 +75,7 @@ helpers do
     request_hash = REDIS.hgetall request_url
 
     if request_hash.empty?
-      { request_url => { error: "Request data not found." } }
+      response = { request_url => { error: "Request data not found." } }
     else
       # If request is included, count is incremented
       if include_response
@@ -83,7 +84,8 @@ helpers do
       else
         request_hash.delete("response")
       end
-      { request_url => request_hash }
+      response = { request_url => request_hash }
     end
+    response
   end
 end
