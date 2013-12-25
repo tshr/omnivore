@@ -23,14 +23,12 @@ get '/request' do
 
   if response_hash.empty?
     get_and_store_response(request_url, true)
+  # Check if expired
+  elsif response_hash["updated"].to_i + TIME_TO_LIVE < Time.now.to_i
+    get_and_store_response(request_url)
   else
-    # Check if expired
-    if (response_hash["updated"].to_i + TIME_TO_LIVE) < Time.now.to_i
-      get_and_store_response(request_url)
-    else
-      REDIS.hincrby(request_url, "count", 1)
-      response_hash["response"]
-    end
+    REDIS.hincrby(request_url, "count", 1)
+    response_hash["response"]
   end
 end
 
@@ -50,7 +48,7 @@ end
 
 helpers do
 
-  def get_and_store_response(request_url, create = false)
+  def get_and_store_response(request_url, create_redis_record = false)
     begin
       response = RestClient.get request_url
     rescue
@@ -59,12 +57,13 @@ helpers do
     end
 
     # Updated time value stored in Unix epoch seconds
-    if create
-      now = Time.now.to_i
+    now = Time.now.to_i
+
+    if create_redis_record
       REDIS.hmset(request_url, "response", response, "count", 1, "created", now, "updated", now)
     else
       REDIS.multi do
-        REDIS.hmset(request_url, "response", response, "updated", Time.now.to_i)
+        REDIS.hmset(request_url, "response", response, "updated", now)
         REDIS.hincrby(request_url, "count", 1)
       end
     end
@@ -80,7 +79,7 @@ helpers do
       # If request is included, count is incremented
       if include_response
         REDIS.hincrby(request_url, "count", 1)
-        request_hash["count"] = (request_hash["count"].to_i + 1).to_s
+        request_hash["count"].next!
       else
         request_hash.delete("response")
       end
