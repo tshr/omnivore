@@ -1,6 +1,5 @@
 .DS_STORE
 .rvmrc
 dump.rdb
-notes
 .swp
 redis-stable/
