@@ -72,19 +72,19 @@ helpers do
   end
 
   def get_request_data (request_url, include_response = false)
-    request_hash = REDIS.hgetall request_url
+    response_hash = REDIS.hgetall request_url
 
-    if request_hash.empty?
+    if response_hash.empty?
       response = { request_url => { error: "Request data not found." } }
     else
       # If request is included, count is incremented
       if include_response
         REDIS.hincrby(request_url, "count", 1)
-        request_hash["count"].next!
+        response_hash["count"].next!
       else
-        request_hash.delete("response")
+        response_hash.delete("response")
       end
-      response = { request_url => request_hash }
+      response = { request_url => response_hash }
     end
     response
   end
