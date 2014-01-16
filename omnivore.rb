@@ -25,10 +25,10 @@ get '/request' do
     get_and_store_response(request_url, true)
   # Check if expired
   elsif response_hash["updated"].to_i + TIME_TO_LIVE < Time.now.to_i
-     get_and_store_response(request_url)
+    get_and_store_response(request_url)
   else
-     REDIS.hincrby(request_url, "count", 1)
-     response_hash["response"]
+    REDIS.hincrby(request_url, "count", 1)
+    response_hash["response"]
   end
 end
 
