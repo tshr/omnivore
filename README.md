@@ -1,7 +1,7 @@
 Omnivore
 ========
 
-Response caching with Redis and Sinatra. ([Demo](http://tshr.io:9292))
+Response caching with Redis and Sinatra.
 
 Setup
 -----
